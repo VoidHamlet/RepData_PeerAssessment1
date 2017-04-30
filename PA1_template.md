@@ -1,11 +1,6 @@
----
-title: "PA1_template.Rmd"
-author: "Polina Filipova"
-date: "April 30, 2017"
-output: 
-  html_document: 
-    keep_md: yes
----
+# PA1_template.Rmd
+Polina Filipova  
+April 30, 2017  
 
 <a name="top"></a>
 
@@ -38,8 +33,8 @@ The following required items can be reviewed below:
 
 Note: This will search for content in the current working directory for your R environment.
 
-```{r, echo=TRUE, results='hide'}
 
+```r
 # Check if we already have the data. If not, fetch and extract it:
 if(!file.exists("activity.csv") | !file.exists("repdata%2Fdata%2Factivity.zip"))
         {
@@ -50,9 +45,17 @@ if(!file.exists("activity.csv") | !file.exists("repdata%2Fdata%2Factivity.zip"))
         }
 ```
 
-```{r, echo=TRUE, results='show'}
+
+```r
 activityData <- read.csv("activity.csv", header=TRUE, sep=",", stringsAsFactor=FALSE, na.strings="NA")
 str(activityData)
+```
+
+```
+## 'data.frame':	17568 obs. of  3 variables:
+##  $ steps   : int  NA NA NA NA NA NA NA NA NA NA ...
+##  $ date    : chr  "2012-10-01" "2012-10-01" "2012-10-01" "2012-10-01" ...
+##  $ interval: int  0 5 10 15 20 25 30 35 40 45 ...
 ```
 
 [Back to Overview](#top)
@@ -60,7 +63,8 @@ str(activityData)
 
 ### <a name="step2"></a>2. Mean and median number of steps taken each day
 
-```{r, echo=TRUE, results='hide'}
+
+```r
 # Sum total of the number of steps per day:
 stepsTotal <- aggregate(steps~date, data=activityData, sum, na.rm=TRUE)
 
@@ -69,12 +73,22 @@ stepsTotal.mean <- mean(stepsTotal$steps)
 stepsTotal.median <- median(stepsTotal$steps)
 ```
 
-```{r, echo=TRUE, results='show'}
+
+```r
 stepsTotal.mean
 ```
 
-```{r, echo=TRUE, results='show'}
+```
+## [1] 10766.19
+```
+
+
+```r
 stepsTotal.median
+```
+
+```
+## [1] 10765
 ```
 
 [Back to Overview](#top)
@@ -84,18 +98,22 @@ stepsTotal.median
 
 We saw mean and median to be very close, wherefore the scope of the histogram does not allow to accurately represent both. We will still note the mean.
 
-```{r, echo=TRUE, results='show'}
+
+```r
 hist(stepsTotal$steps, xlab="Total Steps per Day", main="Histogram")  
 abline(v = stepsTotal.mean, col="blue", lwd=2)
 legend(x="topright", "Mean", col = c("blue"), lwd=2)
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-6-1.png)<!-- -->
 
 [Back to Overview](#top)
 
 
 ### <a name="step4"></a>4. The 5-minute interval that, on average, contains the maximum number of steps
 
-```{r, echo=TRUE, results='hide'}
+
+```r
 # From the data, we know the intervals are 5 minute each.
 # Therefore, we can pick the one feat. maximum number of steps without further preprocessing.
 
@@ -109,12 +127,22 @@ intervalMax <-stepsAvg[which.max(stepsAvg$steps),1]
 stepsMax <- max(stepsAvg$steps)
 ```
 
-```{r, echo=TRUE, results='show'}
+
+```r
 intervalMax
 ```
 
-```{r, echo=TRUE, results='show'}
+```
+## [1] 835
+```
+
+
+```r
 stepsMax
+```
+
+```
+## [1] 206.1698
 ```
 
 [Back to Overview](#top)
@@ -122,9 +150,12 @@ stepsMax
 
 ### <a name="step5"></a>5. Time series plot of the average number of steps taken
 
-```{r, echo=TRUE, results='show'}
+
+```r
 plot(stepsAvg$interval, stepsAvg$steps, type="l", xlab="Intervals", ylab="Number of Steps", main="Average Number of Steps per Day\n by Consecutive Interval")
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-10-1.png)<!-- -->
 
 [Back to Overview](#top)
 
@@ -135,7 +166,8 @@ Mean-derived data is a popular methods of filling in the gaps.
 
 Let's do a "before" and "after" exercise:
 
-```{r, echo=TRUE, results='hide'}
+
+```r
 # Calculate total number of values and total number of missing values in the dataset:
 valuesTotal <- length(activityData$steps)
 valuesNATotal <- length(which(is.na(activityData$steps)))
@@ -143,30 +175,53 @@ valuesNATotal <- length(which(is.na(activityData$steps)))
 
 Before:
 
-```{r, echo=TRUE, results='show'}
+
+```r
 # Total number of values:
 valuesTotal
 ```
 
-```{r, echo=TRUE, results='show'}
+```
+## [1] 17568
+```
+
+
+```r
 # Total number of N/A values:
 valuesNATotal
 ```
 
-```{r, echo=TRUE, results='show'}
+```
+## [1] 2304
+```
+
+
+```r
 # Missing values as a percentage of total values:
 (valuesNATotal/valuesTotal)*100
 ```
 
+```
+## [1] 13.11475
+```
+
 Fill in the missing observations with mean-derived data:
 
-```{r, echo=TRUE, results='hide', warning=FALSE}
+
+```r
 # Important note: The "impute" package is no longer available on Cran.
 # It makes a fine mess in R version 3.3.2, 3.4.0.
 # If you are confident working with "impute", you can get it from BioConductor.
 # We will use the "mice" package instead, to invoke predictive mean matching (PMM).
 
 if(!require(mice)) { install.packages("mice") }
+```
+
+```
+## Loading required package: mice
+```
+
+```r
 library(mice)
 
 tempData <- mice(activityData, m=5, maxit=10, method='pmm', seed=1, printFlag=FALSE)
@@ -178,27 +233,45 @@ valuesNATotalImp <- length(which(is.na(imputedData$steps)))
 
 After adjustment:
 
-```{r, echo=TRUE, results='show'}
+
+```r
 # Total number of values:
     valuesTotalImp
 ```
 
-```{r, echo=TRUE, results='show'}
+```
+## [1] 17568
+```
+
+
+```r
 # Total number of N/A values:
     valuesNATotalImp
 ```
 
+```
+## [1] 0
+```
+
 We can as well have a look of the differences:
 
-```{r, echo=TRUE, results='hide'}
+
+```r
 if(!require(lattice)) { install.packages("lattice") }
 ```
 
-```{r, echo=TRUE, results='show'}
+```
+## Loading required package: lattice
+```
+
+
+```r
 library(lattice)
 
  xyplot(tempData, steps~interval, col=mdc(1:2), pch=20, cex=1.5)
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-19-1.png)<!-- -->
 
 [Back to Overview](#top)
 
@@ -207,7 +280,8 @@ library(lattice)
 
 Earlier, we created the histogram without NA values. Now with the NA values imputed, we get:
 
-```{r, echo=TRUE, results='show'}
+
+```r
 # Get total number of steps per day based on imputed data:
 stepsTotalImp <- aggregate(steps~date, data=imputedData, sum)
 
@@ -216,22 +290,35 @@ stepsTotalImp.mean <- mean(stepsTotalImp$steps)
 stepsTotalImp.median <- median(stepsTotalImp$steps)
 ```
 
-```{r, echo=TRUE, results='show'}
+
+```r
 stepsTotalImp.mean
 ```
 
-```{r, echo=TRUE, results='show'}
+```
+## [1] 10804.49
+```
+
+
+```r
 stepsTotalImp.median
+```
+
+```
+## [1] 10765
 ```
 
 With our simple histogram approach from before, it would still be difficult for the human eye to distinguish the mean and median values. Here's the mean for show, again.
 
-```{r, echo=TRUE, results='show'}
+
+```r
 # Print histogram:
 hist(stepsTotalImp$steps, xlab="Total Steps per Day", main="Histogram w. Imputed Values")  
 abline(v = stepsTotalImp.mean, col="blue", lwd=2)
 legend(x="topright", "Mean", col = c("blue"), lwd=2)
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-23-1.png)<!-- -->
 
 [Back to Overview](#top )
 
@@ -239,7 +326,8 @@ legend(x="topright", "Mean", col = c("blue"), lwd=2)
 ### <a name="step5"></a>8. Panel plot comparing average steps per 5-minute interval across weekdays and weekends
 
 
-```{r, echo=TRUE, results='show'}
+
+```r
 # Factor in weekday and wekeend data.
 
 imputedData[, 2] <- as.Date(imputedData[, 2])
@@ -251,15 +339,23 @@ imputedData$daytype <- factor((weekdays(imputedData$date) %in% imputedDataWeeken
 imputedDataAvgWeek <- aggregate(steps~interval+daytype, data=imputedData, mean)
 ```
 
-```{r, echo=TRUE, results='hide'}
+
+```r
 if(!require(ggplot2)) { install.packages("ggplot2") }
 ```
 
-```{r, echo=TRUE, results='show'}
+```
+## Loading required package: ggplot2
+```
+
+
+```r
 library(ggplot2)
 
 qplot(interval, steps, data=imputedDataAvgWeek, color=daytype, geom="path", facets=.~daytype) + ggtitle("Average number of steps per interval across weekdays and weekend\n (Based on imputed data)") + theme(legend.position="none")
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-26-1.png)<!-- -->
 
 This is curious - it appears that the test subjects start weekday training with higher enthusiasm overall.
 
